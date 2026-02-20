@@ -1,0 +1,27 @@
+// Neon Expanse default input configuration.
+// Edit this file to remap controls or adjust dead zones without recompiling.
+// This file is loaded at startup; delete it to revert to hardcoded defaults.
+// GamepadAxis variants: LeftStickX, LeftStickY, RightStickX, RightStickY
+// GamepadButton variants: South, East, North, West, LeftTrigger, RightTrigger, etc.
+// KeyCode variants: KeyW, KeyA, KeyS, KeyD, Space, ShiftLeft, KeyE, etc.
+(
+    deadzone_radius: 0.15,
+    axis_map: {
+        "MoveForward": LeftStickY,
+        "MoveRight": LeftStickX,
+        "LookVertical": RightStickY,
+        "LookHorizontal": RightStickX,
+    },
+    button_map: {
+        "PrimaryAction": South,
+        "Jump": South,
+        "Sprint": LeftThumb,
+    },
+    keyboard_map: {
+        "MoveForward": KeyW,
+        "MoveRight": KeyD,
+        "Jump": Space,
+        "Sprint": ShiftLeft,
+        "PrimaryAction": KeyE,
+    },
+)

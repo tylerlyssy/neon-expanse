@@ -1,0 +1,14 @@
+# Neon Expanse — Cargo build configuration.
+#
+# Enables CPU-specific optimisations for local development builds.
+# The mold/lld fast linker is not universally available on macOS;
+# system ld is used instead (acceptable for single-dev builds).
+
+[build]
+rustflags = ["-C", "target-cpu=native"]
+
+[target.aarch64-apple-darwin]
+rustflags = ["-C", "target-cpu=native"]
+
+[target.x86_64-apple-darwin]
+rustflags = ["-C", "target-cpu=native"]
