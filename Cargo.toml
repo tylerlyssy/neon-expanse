@@ -9,9 +9,10 @@ description = "Earth-scale voxel exploration game — Bevy + Avian3d"
 [dependencies]
 bevy = { version = "0.18", features = ["dynamic_linking", "serialize"] }
 avian3d = "0.6.0-rc.1"
+fastnoise-lite = "1.1"
 serde = { version = "1", features = ["derive"] }
 ron = "0.8"
-glam = "0.29"
+glam = "0.30"
 
 [dev-dependencies]
 proptest = "1"
@@ -20,6 +21,8 @@ proptest = "1"
 default = []
 # Enable Tracy profiler integration (run with: cargo run --features tracy)
 tracy = ["bevy/trace_tracy"]
+# Enable proptest fuzz suites – no extra dep needed, proptest is always a dev-dep
+proptest = []
 
 # Fast dev builds: dynamic linking + minimal optimisation
 [profile.dev]

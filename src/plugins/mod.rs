@@ -5,10 +5,12 @@
 //! the core-foundation milestone without a corresponding spec.
 
 pub mod core_plugin;
+pub mod debug_plugin;
 pub mod floating_origin;
 pub mod input;
 pub mod lod;
 pub mod physics_plugin;
 pub mod traversal_plugin;
+pub mod voxel;
 pub mod voxel_world_plugin;
 pub mod window_plugin;

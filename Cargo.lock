@@ -2540,6 +2540,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "fastnoise-lite"
+version = "1.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3e5f3c3cc9081e5d0e18bcd50e80cd33cba47fc22f88a9da9c33ecd1c87ea5c0"
+dependencies = [
+ "num-traits",
+]
+
+[[package]]
 name = "fastrand"
 version = "2.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2811,12 +2820,6 @@ dependencies = [
  "log",
  "xml-rs",
 ]
-
-[[package]]
-name = "glam"
-version = "0.29.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8babf46d4c1c9d92deac9f7be466f76dfc4482b6452fc5024b5e8daf6ffeb3ee"
 
 [[package]]
 name = "glam"
@@ -3588,7 +3591,8 @@ version = "0.0.1-dev"
 dependencies = [
  "avian3d",
  "bevy",
- "glam 0.29.3",
+ "fastnoise-lite",
+ "glam 0.30.10",
  "proptest",
  "ron 0.8.1",
  "serde",
@@ -4025,15 +4029,6 @@ dependencies = [
 
 [[package]]
 name = "ordered-float"
-version = "4.6.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7bb71e1b3fa6ca1c61f383464aaf2bb0e2f8e772a1f01d486832464de363b951"
-dependencies = [
- "num-traits",
-]
-
-[[package]]
-name = "ordered-float"
 version = "5.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7f4779c6901a562440c3786d08192c6fbda7c1c2060edd10006b05ee35d10f2d"
@@ -4097,7 +4092,7 @@ dependencies = [
  "log",
  "num-derive",
  "num-traits",
- "ordered-float 5.1.0",
+ "ordered-float",
  "rayon",
  "rstar",
  "simba",
@@ -4126,7 +4121,7 @@ dependencies = [
  "log",
  "num-derive",
  "num-traits",
- "ordered-float 5.1.0",
+ "ordered-float",
  "rayon",
  "rstar",
  "simba",
@@ -5894,7 +5889,7 @@ dependencies = [
  "ndk-sys 0.6.0+11769913",
  "objc",
  "once_cell",
- "ordered-float 4.6.0",
+ "ordered-float",
  "parking_lot",
  "portable-atomic",
  "portable-atomic-util",

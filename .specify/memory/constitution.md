@@ -22,7 +22,7 @@ Follow-up TODOs: None — all placeholders resolved.
 
 # Neon Expanse Constitution
 
-**Version**: 1.0.0 | **Ratified**: 2026-02-19 | **Last Amended**: 2026-02-19
+**Version**: 1.0.1 | **Ratified**: 2026-02-19 | **Last Amended**: 2026-02-20
 **Project Name**: Neon Expanse
 **Enforced by**: All `/speckit.*` commands, plans, tasks, code reviews, and PRs
 
@@ -81,7 +81,7 @@ the seamless-world guarantee impossible to maintain at scale.
   aircraft, and destruction.
 - Voxel / Terrain:
   - Custom dual marching cubes mesher (no third-party replacement permitted).
-  - Layered noise via the `noise` crate plus erosion simulation.
+  - Layered noise via the `fastnoise-lite` crate (v1.1, pure-Rust, cross-platform deterministic) plus erosion simulation. *(Amended 2026-02-20: replaced `noise` crate per Feature 002 Clarification Q1 — determinism guarantee required for golden snapshot CI tests.)*
 - Coordinates: `glam::DVec3` for global positions; `Vec3` for local chunk-space.
 - Input: Bevy Gamepad + custom action system (PS4/PS5 optimized with deadzones;
   keyboard/mouse fallback REQUIRED).
