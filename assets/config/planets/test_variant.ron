@@ -1,0 +1,54 @@
+// Test variant — Mars-scale desert planet.
+// Load with: NEON_PLANET_CONFIG=assets/config/planets/test_variant.ron cargo run
+//
+// Structural differences from default planet.ron:
+//   - radius_km:         3389 (Mars radius, ~53% of Earth)
+//   - noise frequencies: higher (more rugged terrain at smaller scale)
+//   - noise amplitudes:  smaller (shallower relief)
+//   - erosion passes:    1 (less smoothing)
+//   - biome:             5-band desert palette (reds, ochres, stone, frost cap)
+PlanetConfig(
+    radius_km: 3389.0,
+    seed_override: None,
+    memory_budget_mb: 256,
+    noise_layers: [
+        NoiseLayer(
+            kind: Fbm,
+            frequency: 0.0000015,
+            amplitude: 4000.0,
+            octaves: 5,
+            persistence: 0.55,
+            lacunarity: 2.1,
+        ),
+        NoiseLayer(
+            kind: Ridged,
+            frequency: 0.000008,
+            amplitude: 600.0,
+            octaves: 3,
+            persistence: 0.6,
+            lacunarity: 2.0,
+        ),
+        NoiseLayer(
+            kind: Billow,
+            frequency: 0.00005,
+            amplitude: 80.0,
+            octaves: 2,
+            persistence: 0.4,
+            lacunarity: 1.8,
+        ),
+    ],
+    erosion: ErosionConfig(
+        passes: 1,
+        erosion_rate: 0.2,
+        sediment_capacity: 0.5,
+    ),
+    biome: BiomeConfig(
+        bands: [
+            (height_fraction: -1.0, colour: (0.22, 0.08, 0.04)),   // deep lowlands
+            (height_fraction: -0.05, colour: (0.55, 0.25, 0.12)),  // valley floor
+            (height_fraction: 0.1,  colour: (0.75, 0.42, 0.22)),   // plains (ochre)
+            (height_fraction: 0.5,  colour: (0.60, 0.35, 0.20)),   // mid-altitude
+            (height_fraction: 1.0,  colour: (0.92, 0.92, 0.95)),   // frost cap
+        ],
+    ),
+)

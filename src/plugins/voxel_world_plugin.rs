@@ -1,24 +1,111 @@
-//! Voxel World Engine plugin — empty stub.
+//! Voxel World Engine plugin for Neon Expanse.
 //!
-//! This plugin will own: chunk streaming, dual marching cubes mesher,
-//! layered procedural generation (base sphere → fractal noise → erosion →
-//! biome overlays), and the scaled-space / full-detail rendering switch.
+//! Owns: `PlanetConfig` loading, scaled-space sphere, dual marching cubes
+//! chunk streaming, Avian3d collision generation, and LOD integration.
 //!
 //! Populated in spec `002-voxel-planet-engine`.
 
 use bevy::prelude::*;
 
-/// Empty stub for the Voxel World Engine plugin.
+use crate::plugins::voxel::{
+    components::*,
+    resources::*,
+    systems::{
+        collider_sync::collider_syncer,
+        mesh_builder::{mesh_builder, setup_voxel_material},
+        planet_init::{
+            load_planet_config, reposition_origin_camera_to_orbit, spawn_planet_on_startup,
+        },
+        scaled_space::scaled_space_switcher,
+        streaming::{chunk_streamer, chunk_task_poller},
+    },
+};
+
+/// `Update` system: log `VoxelStats` diagnostics at `debug!` level.
 ///
-/// This plugin will own: chunk streaming, dual marching cubes mesher,
-/// layered procedural generation, biome overlays, and the
-/// scaled-space / full-detail rendering switch.
+/// Registered under `#[cfg(debug_assertions)]` to avoid overhead in release builds.
+pub fn log_voxel_stats(stats: Res<VoxelStats>) {
+    debug!(
+        "VoxelStats — loaded: {} chunks, queued: {}, in-flight: {}, memory: {:.1} MB",
+        stats.loaded_chunks, stats.queued_chunks, stats.in_flight_tasks, stats.memory_used_mb
+    );
+}
+
+/// Voxel World Engine plugin.
 ///
-/// Populated in spec `002-voxel-planet-engine`.
+/// Registers all resources, startup systems, and update systems required for
+/// the procedural voxel planet: config loading, scaled-space sphere, chunk
+/// streaming, DMC meshing, and Avian3d collision generation.
 pub struct VoxelWorldPlugin;
 
+impl VoxelWorldPlugin {
+    /// Returns a snapshot of current voxel world diagnostics.
+    ///
+    /// Intended for use by other plugins (e.g., TraversalPlugin) that need to
+    /// throttle based on memory budget or in-flight task count.
+    pub fn stats(world: &World) -> Option<VoxelStats> {
+        world.get_resource::<VoxelStats>().copied()
+    }
+}
+
 impl Plugin for VoxelWorldPlugin {
-    fn build(&self, _app: &mut App) {
-        // Stub: no systems registered yet.
+    fn build(&self, app: &mut App) {
+        // ── Resources ─────────────────────────────────────────────────────
+        app.init_resource::<ChunkPool>()
+            .init_resource::<StreamingQueue>()
+            .init_resource::<ScaledSpaceState>()
+            .init_resource::<VoxelStats>();
+
+        // ── Component reflection ──────────────────────────────────────────
+        app.register_type::<VoxelChunk>()
+            .register_type::<VoxelData>()
+            .register_type::<ChunkMesh>()
+            .register_type::<ChunkCollider>()
+            .register_type::<ScaledSpaceMarker>()
+            .register_type::<PlanetCentre>();
+
+        // ── Startup systems ───────────────────────────────────────────────
+        // setup_voxel_material must run before mesh_builder (inserts VoxelMaterial resource).
+        app.add_systems(
+            Startup,
+            (
+                setup_voxel_material,
+                load_planet_config,
+                spawn_planet_on_startup
+                    .after(load_planet_config)
+                    .after(setup_voxel_material),
+            ),
+        );
+
+        // ── Orbital camera placement (Startup + 1) ───────────────────────
+        // Runs in PostStartup so FloatingOriginPlugin::spawn_test_scene has
+        // already created the FloatingOrigin camera entity.  Repositions the
+        // single existing camera to 8,000 km altitude — outside the planet.
+        // Registering here (not in FloatingOriginPlugin) keeps the camera
+        // position concern with the planet engine, not the coordinate system.
+        app.add_systems(PostStartup, reposition_origin_camera_to_orbit);
+
+        // ── Update systems ────────────────────────────────────────────────
+        // Ordering: scaled_space_switcher runs freely (read-only on sphere vis).
+        //           chunk_streamer enqueues jobs.
+        //           chunk_task_poller finalises completed tasks → inserts VoxelData.
+        //           mesh_builder fires on Added<VoxelData> → inserts Mesh + ChunkMesh.
+        //           collider_syncer fires on Added<ChunkMesh> → inserts Collider.
+        app.add_systems(
+            Update,
+            (
+                scaled_space_switcher,
+                chunk_streamer,
+                chunk_task_poller.after(chunk_streamer),
+                mesh_builder.after(chunk_task_poller),
+                collider_syncer.after(mesh_builder),
+            ),
+        );
+
+        // ── Debug diagnostics (dev-only, T026 + T027) ────────────────────
+        #[cfg(debug_assertions)]
+        app.add_systems(Update, log_voxel_stats);
+
+        // Note: FrameTimeDiagnosticsPlugin is already registered by CorePlugin.
     }
 }
