@@ -1,0 +1,43 @@
+// Car vehicle configuration.
+// Loaded by startup_load_configs into VehicleRegistry at startup.
+VehicleConfig(
+    name: "Car",
+    physics: GroundVehicle(GroundVehicleConfig(
+        mass_kg: 1200.0,
+        max_speed_m_s: 30.0,
+        engine_force_n: 5000.0,
+        brake_force_n: 8000.0,
+        max_steer_angle_deg: 35.0,
+        wheels: [
+            WheelConfig(
+                local_offset: (1.0, -0.3, 1.7),
+                ray_length: 0.6,
+                rest_length: 0.3,
+                spring_stiffness: 25000.0,
+                damper: 2000.0,
+            ),
+            WheelConfig(
+                local_offset: (-1.0, -0.3, 1.7),
+                ray_length: 0.6,
+                rest_length: 0.3,
+                spring_stiffness: 25000.0,
+                damper: 2000.0,
+            ),
+            WheelConfig(
+                local_offset: (1.0, -0.3, -1.7),
+                ray_length: 0.6,
+                rest_length: 0.3,
+                spring_stiffness: 25000.0,
+                damper: 2000.0,
+            ),
+            WheelConfig(
+                local_offset: (-1.0, -0.3, -1.7),
+                ray_length: 0.6,
+                rest_length: 0.3,
+                spring_stiffness: 25000.0,
+                damper: 2000.0,
+            ),
+        ],
+        impact_threshold_m_s: 20.0,
+    )),
+)

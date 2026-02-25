@@ -1,0 +1,43 @@
+// Truck vehicle configuration.
+// Loaded by startup_load_configs into VehicleRegistry at startup.
+VehicleConfig(
+    name: "Truck",
+    physics: GroundVehicle(GroundVehicleConfig(
+        mass_kg: 3000.0,
+        max_speed_m_s: 20.0,
+        engine_force_n: 9000.0,
+        brake_force_n: 12000.0,
+        max_steer_angle_deg: 28.0,
+        wheels: [
+            WheelConfig(
+                local_offset: (1.1, -0.4, 2.0),
+                ray_length: 0.7,
+                rest_length: 0.4,
+                spring_stiffness: 45000.0,
+                damper: 3500.0,
+            ),
+            WheelConfig(
+                local_offset: (-1.1, -0.4, 2.0),
+                ray_length: 0.7,
+                rest_length: 0.4,
+                spring_stiffness: 45000.0,
+                damper: 3500.0,
+            ),
+            WheelConfig(
+                local_offset: (1.1, -0.4, -2.0),
+                ray_length: 0.7,
+                rest_length: 0.4,
+                spring_stiffness: 45000.0,
+                damper: 3500.0,
+            ),
+            WheelConfig(
+                local_offset: (-1.1, -0.4, -2.0),
+                ray_length: 0.7,
+                rest_length: 0.4,
+                spring_stiffness: 45000.0,
+                damper: 3500.0,
+            ),
+        ],
+        impact_threshold_m_s: 20.0,
+    )),
+)

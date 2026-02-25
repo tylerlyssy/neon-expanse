@@ -8,7 +8,7 @@ use bevy::prelude::*;
 use neon_expanse::plugins::{
     core_plugin::CorePlugin, debug_plugin::DebugPlugin, floating_origin::FloatingOriginPlugin,
     input::NeonInputPlugin, lod::LodPlugin, physics_plugin::PhysicsPlugin,
-    traversal_plugin::TraversalPlugin, voxel_world_plugin::VoxelWorldPlugin,
+    traversal::TraversalPlugin, voxel_world_plugin::VoxelWorldPlugin,
     window_plugin::neon_window_plugins,
 };
 

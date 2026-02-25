@@ -1,0 +1,15 @@
+// Motorboat vehicle configuration.
+// Loaded by startup_load_configs into VehicleRegistry at startup.
+VehicleConfig(
+    name: "Motorboat",
+    physics: Watercraft(WatercraftConfig(
+        mass_kg: 800.0,
+        max_speed_m_s: 15.0,
+        thrust_force_n: 3000.0,
+        turn_torque_n_m: 1500.0,
+        buoyancy_volume_m3: 4.0,
+        water_drag: 150.0,
+        sea_level_m: 0.0,
+        draft_m: 0.3,
+    )),
+)
