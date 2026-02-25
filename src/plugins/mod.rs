@@ -10,7 +10,7 @@ pub mod floating_origin;
 pub mod input;
 pub mod lod;
 pub mod physics_plugin;
-pub mod traversal_plugin;
+pub mod traversal;
 pub mod voxel;
 pub mod voxel_world_plugin;
 pub mod window_plugin;

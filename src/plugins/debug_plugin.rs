@@ -21,15 +21,9 @@ impl Plugin for DebugPlugin {
 }
 
 /// `Update` system: toggle global wireframe when F1 is just-pressed.
-fn toggle_wireframe_on_f1(
-    keys: Res<ButtonInput<KeyCode>>,
-    mut config: ResMut<WireframeConfig>,
-) {
+fn toggle_wireframe_on_f1(keys: Res<ButtonInput<KeyCode>>, mut config: ResMut<WireframeConfig>) {
     if keys.just_pressed(KeyCode::F1) {
         config.global = !config.global;
-        info!(
-            "Wireframe {}",
-            if config.global { "ON" } else { "OFF" }
-        );
+        info!("Wireframe {}", if config.global { "ON" } else { "OFF" });
     }
 }

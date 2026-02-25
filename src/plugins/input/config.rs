@@ -37,11 +37,17 @@ impl Default for InputConfig {
         axis_map.insert("MoveRight".into(), GamepadAxis::LeftStickX);
         axis_map.insert("LookVertical".into(), GamepadAxis::RightStickY);
         axis_map.insert("LookHorizontal".into(), GamepadAxis::RightStickX);
+        // Vehicle axes — T013
+        axis_map.insert("ThrottleForward".into(), GamepadAxis::RightZ);
+        axis_map.insert("Brake".into(), GamepadAxis::LeftZ);
+        axis_map.insert("SteerRight".into(), GamepadAxis::LeftStickX);
 
         let mut button_map = HashMap::new();
         button_map.insert("PrimaryAction".into(), GamepadButton::South);
         button_map.insert("Jump".into(), GamepadButton::South);
         button_map.insert("Sprint".into(), GamepadButton::LeftThumb);
+        // Enter/exit vehicle — T013
+        button_map.insert("EnterExitVehicle".into(), GamepadButton::North);
 
         let mut keyboard_map = HashMap::new();
         keyboard_map.insert("MoveForward".into(), KeyCode::KeyW);
@@ -49,6 +55,10 @@ impl Default for InputConfig {
         keyboard_map.insert("Jump".into(), KeyCode::Space);
         keyboard_map.insert("Sprint".into(), KeyCode::ShiftLeft);
         keyboard_map.insert("PrimaryAction".into(), KeyCode::KeyE);
+        // Vehicle keyboard fallbacks — T013
+        keyboard_map.insert("ThrottleForward".into(), KeyCode::KeyW);
+        keyboard_map.insert("Brake".into(), KeyCode::KeyS);
+        keyboard_map.insert("EnterExitVehicle".into(), KeyCode::KeyF);
 
         Self {
             deadzone_radius: 0.15,

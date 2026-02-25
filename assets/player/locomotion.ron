@@ -1,0 +1,15 @@
+// PlayerLocomotionConfig — all on-foot movement parameters.
+// See src/plugins/traversal/config.rs :: PlayerLocomotionConfig for field docs.
+// FR-002: walk ~5 m/s, sprint ~10 m/s.  FR-004/FR-005: swim + sea_level.
+PlayerLocomotionConfig(
+    walk_speed_m_s:    5.0,
+    sprint_speed_m_s:  10.0,
+    jump_impulse_m_s:  6.0,
+    gravity_m_s2:      -20.0,
+    max_slope_angle_deg: 45.0,
+    interact_radius_m: 3.0,
+    capsule_radius_m:  0.35,
+    capsule_height_m:  1.8,
+    swim_speed_m_s:    3.0,
+    sea_level_m:       0.0,
+)

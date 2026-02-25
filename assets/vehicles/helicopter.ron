@@ -1,0 +1,14 @@
+// Helicopter vehicle configuration.
+// Loaded by startup_load_configs into VehicleRegistry at startup.
+VehicleConfig(
+    name: "Helicopter",
+    physics: Helicopter(HelicopterConfig(
+        mass_kg: 2000.0,
+        max_ascent_m_s: 15.0,
+        max_lateral_m_s: 20.0,
+        hover_throttle: 0.5,
+        tilt_sensitivity: 15.0,
+        yaw_torque_n_m: 3000.0,
+        impact_threshold_m_s: 15.0,
+    )),
+)

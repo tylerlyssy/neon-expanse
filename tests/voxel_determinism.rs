@@ -160,7 +160,11 @@ fn generate_chunk_densities_is_deterministic() {
 #[test]
 fn physics_rigid_body_rests_on_lod0_chunk() {
     use avian3d::prelude::*;
-    use bevy::{mesh::{Indices, VertexAttributeValues}, prelude::*, time::TimeUpdateStrategy};
+    use bevy::{
+        mesh::{Indices, VertexAttributeValues},
+        prelude::*,
+        time::TimeUpdateStrategy,
+    };
     use neon_expanse::plugins::voxel::{
         components::VoxelData, config::PlanetConfig, mesher::dmc::mesh_chunk,
         noise_stack::generate_chunk_densities,
@@ -171,7 +175,7 @@ fn physics_rigid_body_rests_on_lod0_chunk() {
     let config = PlanetConfig::default();
     let cell_size = 4.0_f32; // 4 m/voxel → 32 m chunk edge
     let voxels = 8_u32;
-    let surface_r = config.radius_km as f64 * 1_000.0;
+    let surface_r = config.radius_km * 1_000.0;
 
     // Chunk corner 10 m below the surface so the isosurface cuts through the
     // upper quarter of the chunk (~y_local = 10 within [0, 32]).
@@ -183,7 +187,13 @@ fn physics_rigid_body_rests_on_lod0_chunk() {
     };
 
     // ── 2. Run DMC mesher in local space (vertices in [0, 32] m) ─────────
-    let mesh = mesh_chunk(&voxel_data, Vec3::ZERO, cell_size, &config.biome, surface_r as f32);
+    let mesh = mesh_chunk(
+        &voxel_data,
+        Vec3::ZERO,
+        cell_size,
+        &config.biome,
+        surface_r as f32,
+    );
 
     let positions: Vec<Vec3> = match mesh.attribute(Mesh::ATTRIBUTE_POSITION) {
         Some(VertexAttributeValues::Float32x3(data)) => {

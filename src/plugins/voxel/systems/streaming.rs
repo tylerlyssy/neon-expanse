@@ -92,7 +92,7 @@ pub fn chunk_streamer(
     // From orbit the scaled-space sphere already renders the planet; trying
     // to enumerate surface chunks at LOD-3 with a 63,710 km radius would
     // require a (2×62222+1)³ ≈ 10¹⁵ iteration loop on the main thread.
-    let planet_radius_m = planet_config.radius_km as f64 * 1_000.0;
+    let planet_radius_m = planet_config.radius_km * 1_000.0;
     let viewer_altitude_m = viewer.length() - planet_radius_m;
     if viewer_altitude_m > STREAM_CUTOFF_ALTITUDE_M {
         return;
@@ -133,6 +133,17 @@ pub fn chunk_streamer(
                     let dist_sq = (centre - viewer).length_squared();
 
                     if dist_sq > radius_m * radius_m {
+                        continue;
+                    }
+
+                    // Skip chunks that are entirely above or below the planet
+                    // surface — they can't contain any terrain geometry.
+                    // Allow a generous ±4-chunk margin for noise peaks/caves.
+                    let surface_margin = chunk_size * 4.0;
+                    let centre_dist = centre.length();
+                    if centre_dist > planet_radius_m + surface_margin
+                        || centre_dist < planet_radius_m - surface_margin
+                    {
                         continue;
                     }
 

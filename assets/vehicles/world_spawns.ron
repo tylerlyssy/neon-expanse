@@ -1,0 +1,29 @@
+WorldSpawnList(
+    entries: [
+        VehicleSpawnEntry(
+            config: "car.ron",
+            position: (20.0, 6371051.0, 0.0),
+            yaw_deg: Some(0.0),
+        ),
+        VehicleSpawnEntry(
+            config: "truck.ron",
+            position: (35.0, 6371051.0, 0.0),
+            yaw_deg: Some(0.0),
+        ),
+        VehicleSpawnEntry(
+            config: "motorboat.ron",
+            position: (0.0, 6371001.0, 50.0),
+            yaw_deg: None,
+        ),
+        VehicleSpawnEntry(
+            config: "helicopter.ron",
+            position: (-20.0, 6371053.0, -20.0),
+            yaw_deg: Some(0.0),
+        ),
+        VehicleSpawnEntry(
+            config: "airplane.ron",
+            position: (100.0, 6371052.0, 0.0),
+            yaw_deg: Some(0.0),
+        ),
+    ],
+)

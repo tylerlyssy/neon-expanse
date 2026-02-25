@@ -4,29 +4,40 @@ use neon_expanse::plugins::input::config::{InputConfig, load_input_config_from};
 
 /// Default InputConfig must have the canonical set of bindings.
 ///
-/// Four axis entries, three button entries, five keyboard entries,
-/// and a dead-zone of 0.15.
+/// Seven axis entries (including vehicle axes T013), four button entries
+/// (including EnterExitVehicle T013), eight keyboard entries (including
+/// vehicle keyboard fallbacks T013), and a dead-zone of 0.15.
 #[test]
 fn test_input_config_default_is_valid() {
     let config = InputConfig::default();
 
-    assert_eq!(config.axis_map.len(), 4, "expected 4 axis entries");
+    assert_eq!(config.axis_map.len(), 7, "expected 7 axis entries");
     assert!(config.axis_map.contains_key("MoveForward"));
     assert!(config.axis_map.contains_key("MoveRight"));
     assert!(config.axis_map.contains_key("LookVertical"));
     assert!(config.axis_map.contains_key("LookHorizontal"));
+    // T013 vehicle axes
+    assert!(config.axis_map.contains_key("ThrottleForward"));
+    assert!(config.axis_map.contains_key("Brake"));
+    assert!(config.axis_map.contains_key("SteerRight"));
 
-    assert_eq!(config.button_map.len(), 3, "expected 3 button entries");
+    assert_eq!(config.button_map.len(), 4, "expected 4 button entries");
     assert!(config.button_map.contains_key("PrimaryAction"));
     assert!(config.button_map.contains_key("Jump"));
     assert!(config.button_map.contains_key("Sprint"));
+    // T013 vehicle button
+    assert!(config.button_map.contains_key("EnterExitVehicle"));
 
-    assert_eq!(config.keyboard_map.len(), 5, "expected 5 keyboard entries");
+    assert_eq!(config.keyboard_map.len(), 8, "expected 8 keyboard entries");
     assert!(config.keyboard_map.contains_key("MoveForward"));
     assert!(config.keyboard_map.contains_key("MoveRight"));
     assert!(config.keyboard_map.contains_key("Jump"));
     assert!(config.keyboard_map.contains_key("Sprint"));
     assert!(config.keyboard_map.contains_key("PrimaryAction"));
+    // T013 vehicle keyboard fallbacks
+    assert!(config.keyboard_map.contains_key("ThrottleForward"));
+    assert!(config.keyboard_map.contains_key("Brake"));
+    assert!(config.keyboard_map.contains_key("EnterExitVehicle"));
 
     assert!(
         (config.deadzone_radius - 0.15).abs() < f32::EPSILON,
