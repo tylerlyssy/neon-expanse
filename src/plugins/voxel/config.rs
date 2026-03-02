@@ -129,6 +129,11 @@ impl Default for BiomeConfig {
 
 // ── PlanetConfig ─────────────────────────────────────────────────────────────
 
+/// Serde default for `PlanetConfig::max_loaded_chunks`.
+fn default_max_loaded_chunks() -> u32 {
+    512
+}
+
 /// Full planet configuration loaded from RON at startup.
 ///
 /// Inserted as a `Resource` by the `load_planet_config` startup system.
@@ -147,6 +152,14 @@ pub struct PlanetConfig {
     pub seed_override: Option<u64>,
     /// Maximum voxel data resident in memory (megabytes). Controls eviction.
     pub memory_budget_mb: u32,
+    /// Hard cap on the number of simultaneously loaded chunk entities.
+    ///
+    /// Prevents unbounded entity-count growth during the initial surface fill-up.
+    /// New chunk tasks are not dispatched while `pool.loaded.len() >= max_loaded_chunks`.
+    /// Eviction (out-of-range or over-budget) frees slots so nearby chunks can replace them.
+    /// Setting this to `0` disables the count cap (memory budget is still enforced).
+    #[serde(default = "default_max_loaded_chunks")]
+    pub max_loaded_chunks: u32,
     /// Ordered list of additive noise layers applied to the base sphere SDF.
     pub noise_layers: Vec<NoiseLayer>,
     /// Hydraulic erosion parameters applied once at planet init.
@@ -162,6 +175,7 @@ impl Default for PlanetConfig {
             radius_km: 6_371.0,
             seed_override: None,
             memory_budget_mb: 512,
+            max_loaded_chunks: 512,
             noise_layers: vec![
                 NoiseLayer {
                     kind: NoiseKind::Fbm,

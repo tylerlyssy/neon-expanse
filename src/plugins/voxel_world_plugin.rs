@@ -31,6 +31,43 @@ pub fn log_voxel_stats(stats: Res<VoxelStats>) {
     );
 }
 
+/// `Update` system: census every second — prints how many entities of each
+/// interesting type exist so we can identify the entity-count leak.
+///
+/// Debug-assertions only (dev builds).
+#[cfg(debug_assertions)]
+pub fn entity_census(
+    all_q: Query<Entity>,
+    chunk_q: Query<Entity, With<VoxelChunk>>,
+    task_q: Query<Entity, With<ChunkGenTask>>,
+    mesh_q: Query<Entity, With<ChunkMesh>>,
+    collider_q: Query<Entity, With<ChunkCollider>>,
+    pool: Res<ChunkPool>,
+    mut timer: Local<f32>,
+    time: Res<Time>,
+) {
+    *timer += time.delta_secs();
+    if *timer < 1.0 {
+        return;
+    }
+    *timer = 0.0;
+
+    let total = all_q.iter().count();
+    let chunks = chunk_q.iter().count();
+    let tasks = task_q.iter().count();
+    let meshed = mesh_q.iter().count();
+    let with_collider = collider_q.iter().count();
+    let pool_loaded = pool.loaded.len();
+    let bytes_mb = pool.bytes_used as f32 / (1024.0 * 1024.0);
+
+    info!(
+        "[CENSUS] total={total} | VoxelChunk={chunks} (pool.loaded={pool_loaded}) \
+         | ChunkGenTask={tasks} | ChunkMesh={meshed} | ChunkCollider={with_collider} \
+         | unknown_other={} | pool_bytes={bytes_mb:.1} MB",
+        total.saturating_sub(chunks + tasks + meshed.max(chunks))
+    );
+}
+
 /// Voxel World Engine plugin.
 ///
 /// Registers all resources, startup systems, and update systems required for
@@ -104,7 +141,7 @@ impl Plugin for VoxelWorldPlugin {
 
         // ── Debug diagnostics (dev-only, T026 + T027) ────────────────────
         #[cfg(debug_assertions)]
-        app.add_systems(Update, log_voxel_stats);
+        app.add_systems(Update, (log_voxel_stats, entity_census));
 
         // Note: FrameTimeDiagnosticsPlugin is already registered by CorePlugin.
     }

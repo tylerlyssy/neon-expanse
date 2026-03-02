@@ -4,6 +4,7 @@ PlanetConfig(
     radius_km: 6371.0,
     seed_override: None,
     memory_budget_mb: 512,
+    max_loaded_chunks: 512,
     noise_layers: [
         NoiseLayer(
             kind: Fbm,

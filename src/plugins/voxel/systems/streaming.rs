@@ -107,8 +107,54 @@ pub fn chunk_streamer(
         (r2 as f64, 2),
         (r2 as f64 * 2.0, 3),
     ];
+    // ── Evict out-of-range chunks ─────────────────────────────────────
+    // Collect the full set of coords that are in-range this frame so we can
+    // detect loaded chunks that have drifted outside every streaming band.
+    let mut in_range_coords: std::collections::HashSet<IVec3> = std::collections::HashSet::new();
+    for (radius_m, lod) in stream_bands {
+        let chunk_size = chunk_size_for_lod(lod);
+        let range =
+            ((radius_m / chunk_size).ceil() as i32 + 1).min(MAX_RANGE_PER_LOD[lod as usize]);
+        let viewer_chunk = world_to_chunk(viewer, chunk_size);
+        let surface_margin = chunk_size * 4.0;
+        for dz in -range..=range {
+            for dy in -range..=range {
+                for dx in -range..=range {
+                    let coord = viewer_chunk + IVec3::new(dx, dy, dz);
+                    let centre = chunk_centre_world(coord, chunk_size);
+                    let dist_sq = (centre - viewer).length_squared();
+                    if dist_sq > radius_m * radius_m {
+                        continue;
+                    }
+                    let centre_dist = centre.length();
+                    if centre_dist > planet_radius_m + surface_margin
+                        || centre_dist < planet_radius_m - surface_margin
+                    {
+                        continue;
+                    }
+                    in_range_coords.insert(coord);
+                }
+            }
+        }
+    }
 
+    let out_of_range: Vec<(IVec3, Entity)> = pool
+        .loaded
+        .iter()
+        .filter(|(c, _)| !in_range_coords.contains(c))
+        .map(|(c, e)| (*c, *e))
+        .collect();
+
+    for (coord, entity) in out_of_range {
+        let freed = pool.byte_counts.remove(&coord).unwrap_or(0);
+        pool.bytes_used = pool.bytes_used.saturating_sub(freed);
+        pool.loaded.remove(&coord);
+        commands.entity(entity).despawn();
+    }
     // ── Enqueue visible chunks ────────────────────────────────────────────
+    // Clear stale pending jobs; we'll re-fill from current viewer position.
+    // This prevents the BinaryHeap from accumulating unbounded duplicates.
+    queue.pending.clear();
     for (radius_m, lod) in stream_bands {
         let chunk_size = chunk_size_for_lod(lod);
         // Cap range to MAX_RANGE_PER_LOD so the inner cube loop is always
@@ -158,6 +204,14 @@ pub fn chunk_streamer(
     }
 
     // ── Dispatch tasks ────────────────────────────────────────────────────
+    // Honour the hard chunk-count cap from planet config.
+    // When the pool is full, skip dispatch entirely; eviction (out-of-range or
+    // over-budget) will free slots so that the closest new chunks can replace them.
+    let max_chunks = planet_config.max_loaded_chunks as usize;
+    if max_chunks > 0 && pool.loaded.len() >= max_chunks {
+        return;
+    }
+
     let thread_pool = AsyncComputeTaskPool::get();
 
     while queue.task_count < MAX_TASKS {
@@ -200,6 +254,8 @@ pub fn chunk_streamer(
     }
 
     // ── Evict over-budget chunks ──────────────────────────────────────────
+    // Out-of-range chunks are already gone above; this handles the case
+    // where the memory budget is still exceeded after range eviction.
     let budget_bytes = planet_config.memory_budget_mb as usize * 1024 * 1024;
     while pool.bytes_used > budget_bytes {
         // Evict the furthest loaded chunk from the viewer.
@@ -215,9 +271,8 @@ pub fn chunk_streamer(
         if let Some((coord, entity)) = to_evict {
             commands.entity(entity).despawn();
             pool.loaded.remove(&coord);
-            // Note: bytes_used is decremented by chunk_task_poller when it
-            // processes the entity removal. Here we do a best-effort decrement.
-            pool.bytes_used = pool.bytes_used.saturating_sub(1024); // approximate
+            let freed = pool.byte_counts.remove(&coord).unwrap_or(0);
+            pool.bytes_used = pool.bytes_used.saturating_sub(freed);
         } else {
             break;
         }
@@ -272,7 +327,9 @@ pub fn chunk_task_poller(
 
         // Register in pool BEFORE despawning any placeholder (FR-032).
         let old_entity = pool.loaded.insert(coord, chunk_entity);
-        pool.bytes_used += byte_count;
+        // Track per-coord byte count so eviction can do a correct decrement.
+        let old_bytes = pool.byte_counts.insert(coord, byte_count).unwrap_or(0);
+        pool.bytes_used = pool.bytes_used.saturating_sub(old_bytes) + byte_count;
         queue.in_flight.remove(&coord);
 
         // Despawn old placeholder/lower-LOD chunk for this coord.

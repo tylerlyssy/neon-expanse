@@ -16,6 +16,8 @@ use std::collections::{BinaryHeap, HashMap, HashSet};
 pub struct ChunkPool {
     /// Coord → entity map for fast lookup.
     pub loaded: HashMap<IVec3, Entity>,
+    /// Per-coord density byte counts; entries mirror `loaded` 1-to-1.
+    pub byte_counts: HashMap<IVec3, usize>,
     /// Running total of voxel density bytes held in memory. Updated by the
     /// task poller when chunks are added/removed.
     pub bytes_used: usize,

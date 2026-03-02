@@ -109,6 +109,7 @@ where
 /// `DVec3::new(0.0, 2.0, 0.0)` with a `warn!`. FR-001.
 pub fn spawn_player(
     mut commands: Commands,
+    asset_server: Res<AssetServer>,
     config: Res<PlayerLocomotionConfig>,
     planet_cfg: Option<Res<crate::plugins::voxel::config::PlanetConfig>>,
 ) {
@@ -143,6 +144,7 @@ pub fn spawn_player(
             Visibility::default(),
             Transform::default(),
             GlobalTransform::default(),
+            SceneRoot(asset_server.load("models/player.glb#Scene0")),
         ),
     ));
 
@@ -151,7 +153,7 @@ pub fn spawn_player(
     // from the orbital debug camera to this entity.
     // Offset: +1.5 m above, +3 m behind (along +Z in world space; camera_follow
     // applies this offset every frame anyway, but we set a sensible initial pos).
-    let cam_pos = spawn_pos + DVec3::new(0.0, 1.5, 3.0);
+    let cam_pos = spawn_pos + DVec3::new(0.0, 3.5, 3.0);
     commands.spawn((
         Name::new("TraversalCamera"),
         TraversalCamera,
@@ -179,6 +181,7 @@ pub fn spawn_player(
 /// `update_origin_frame`'s `query.single()` to succeed.  The orbital camera spawned
 /// by `FloatingOriginPlugin` holds that marker; this system moves it so the
 /// traversal camera drives the coordinate origin near the player.
+#[allow(clippy::type_complexity)]
 pub fn activate_traversal_camera(
     mut commands: Commands,
     orbital_q: Query<
